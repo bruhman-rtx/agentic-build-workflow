@@ -64,6 +64,26 @@ Read $Brief for the night's brief and the checklist of what is already done. App
 Write-Log "watchdog start mode=$Mode pid=$PID cwd=$Cwd stale=${StaleMinutes}m interval=${IntervalSeconds}s deadline=$($deadline.ToString('yyyy-MM-dd HH:mm'))"
 Write-Log "watching transcripts in $projectDir"
 
+# Arm-time heartbeat check. A wrong -Cwd fails in one of two silent ways: a slug
+# with no transcripts (the guard in the loop catches that), or a slug that some
+# OTHER session keeps fresh - a watchdog that will never fire, guarding nothing,
+# looking healthy the entire night. Nothing downstream can detect the second
+# case, so report the initial state loudly here and let the operator check it
+# against the run they actually armed.
+$probe = $null
+if (Test-Path $projectDir) {
+  $probe = Get-ChildItem -Path $projectDir -Filter '*.jsonl' -File |
+           Sort-Object LastWriteTime -Descending | Select-Object -First 1
+}
+if ($null -eq $probe) {
+  Write-Log "WARNING: no transcripts under that slug yet. If the session is already"
+  Write-Log "         running, -Cwd is wrong and this watchdog is guarding nothing."
+} else {
+  $probeAge = [int]((Get-Date) - $probe.LastWriteTime).TotalMinutes
+  Write-Log "heartbeat at arm time: $($probe.Name), last written ${probeAge}m ago"
+  Write-Log "  -> confirm that is the run you just armed, not another session."
+}
+
 while ($true) {
   if (Test-Path $stopFile) { Write-Log 'STOP file present - watchdog exiting.'; break }
   if ((Get-Date) -gt $deadline) { Write-Log "max runtime ${MaxHours}h reached - watchdog exiting."; break }
@@ -74,17 +94,39 @@ while ($true) {
               Sort-Object LastWriteTime -Descending | Select-Object -First 1
   }
 
-  $stale = $true
-  if ($null -ne $newest) {
-    $ageMin = ((Get-Date) - $newest.LastWriteTime).TotalMinutes
-    if ($ageMin -lt $StaleMinutes) { $stale = $false }
+  if ($null -eq $newest) {
+    # FAIL CLOSED, DELIBERATELY.
+    #
+    # No transcript means we cannot tell a stalled session from a healthy one.
+    # Reading that as "stalled" is the dangerous half of the ambiguity: it
+    # relaunches against a session that is very much alive, and you get two
+    # agents writing the same files and the same brief, silently overwriting
+    # each other.
+    #
+    # That is not hypothetical. It is what this script did on a real run whose
+    # -Cwd slug had no transcript directory: it declared a stall on its first
+    # poll and spawned a duplicate writer within three minutes.
+    #
+    # Note this case is NOT covered by the synchronous-relaunch property below.
+    # That stops the watchdog stacking its OWN relaunches; it says nothing about
+    # colliding with the original session, which is a different writer entirely.
+    Write-Log "no transcripts in $projectDir - cannot judge liveness, NOT relaunching."
+    Write-Log "  -> if the run is live, -Cwd does not match the directory it runs in."
+    Write-Log "  -> -Cwd '$Cwd' resolves to slug '$slug'"
+    Start-Sleep -Seconds $IntervalSeconds
+    continue
   }
+
+  $ageMin = ((Get-Date) - $newest.LastWriteTime).TotalMinutes
+  $stale  = ($ageMin -ge $StaleMinutes)
 
   if ($stale) {
     $restarts++
     Write-Log "session looks stalled (no transcript activity for >= ${StaleMinutes}m) - restart #$restarts"
     try {
-      # Blocks until the relaunched run finishes, so restarts never pile up.
+      # Blocks until the relaunched run finishes, so the watchdog never stacks
+      # its own relaunches. This does NOT protect against colliding with a
+      # still-alive original session - the guard above is what does that.
       & claude --autocompact 200k --continue --dangerously-skip-permissions -p $resume *>> $logFile
       Write-Log "relaunched run exited (code $LASTEXITCODE)"
     } catch {

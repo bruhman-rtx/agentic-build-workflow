@@ -92,11 +92,29 @@ Cron jobs are **held in memory and die with the session**. So this layer handles
 | Relaunch trigger | Session transcript idle 20+ minutes |
 | Heartbeat | Transcript `mtime` — chosen because it updates *mid-task*, not only at task boundaries |
 | Relaunch command | `claude --continue -p` |
-| Concurrency | Relaunches are synchronous, so they cannot pile up |
+| Concurrency | Relaunches are synchronous, so the watchdog cannot stack its *own* relaunches. This is **not** the same as being safe against a second writer — see below |
 | Kill switch | `~/.claude/night/STOP` |
 | Runaway guard | `-MaxHours`, default 18 |
 
 The heartbeat choice is the subtle part. A signal that only updates at task boundaries cannot distinguish a long task from a dead session, so it either kills healthy work or waits out the night. Transcript `mtime` moves while the agent is mid-task.
+
+### `-Cwd` is the whole safety property
+
+The transcript slug is `-Cwd` with every non-alphanumeric character replaced by `-`. Get `-Cwd` wrong and the watchdog does not error —it watches the wrong directory, and fails in one of two silent ways:
+
+| Wrong `-Cwd` points at | What the watchdog sees | What you get |
+|---|---|---|
+| A slug with **no** transcripts | No heartbeat, ever | It concludes "stalled" on the *first* poll and relaunches against a session that is perfectly healthy. **Two agents, same repo, same brief, overwriting each other.** |
+| A slug some **other** session keeps warm | A permanently fresh heartbeat | It never fires. The night runs with no crash recovery at all, and the log looks clean the entire time. |
+
+Both were observed on a real run —see [`docs/postmortems/2026-08-30-agentic-build-workflow.md`](../docs/postmortems/2026-08-30-agentic-build-workflow.md). The second is the more dangerous, and it is what you get if you "fix" the first by pointing `-Cwd` somewhere that happens to look alive.
+
+The script now defends what it can:
+
+- **It fails closed.** No transcript means liveness is *unknown*, not stalled, so it logs the resolved slug and waits instead of relaunching. Only a transcript that exists and is stale triggers a restart.
+- **It reports its heartbeat at arm time** —which file, how many minutes old. Nothing in the script can tell whether that file belongs to the run you armed, so **check that line in `night.log` immediately after arming.** It is the only moment the second failure mode is visible.
+
+Pass `-Cwd` the project directory the session actually runs in, as an absolute path.
 
 **Launched detached, or it is not a second layer at all.** A watchdog started inside the session dies with the session, which is precisely the case the cron nudge already fails at — two copies of layer 1.
 

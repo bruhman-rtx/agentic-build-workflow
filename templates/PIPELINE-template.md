@@ -288,17 +288,32 @@ unexplained Skip is indistinguishable from an oversight, so give it a line too.
 
 ### Keep — these prevent product-killing failures
 
+<!--
+One line of reasoning per kept item. Under deadline pressure an unreasoned Keep
+quietly migrates to Compress and then to Skip.
+-->
+
 | Gate / artifact | Why it stays |
 |---|---|
 | | |
 
 ### Compress
 
+<!--
+Say what the compressed version still has to produce. Compression that does not
+name its output is deletion with better manners.
+-->
+
 | Gate / artifact | Compressed to |
 |---|---|
 | | |
 
 ### Skip
+
+<!--
+Give every skip a reason. An unexplained skip is indistinguishable from an
+oversight when someone reads this in month four.
+-->
 
 | Gate / artifact | Why it is safe to skip here |
 |---|---|
@@ -413,6 +428,11 @@ Copy the template block below once per stage.
 - **PRD sections:**
 
 ### Stage 2 — [...]
+
+<!--
+Copy this block for every remaining stage. Keep the five fields on all of them:
+an omitted "Stop condition" reads to the agent as "there is no way to fail here".
+-->
 
 - **Depends on:** Stage 1
 - **Deliverable:**

@@ -90,6 +90,11 @@ metric that cannot be failed is decoration.
 
 ### 3.1 Product Goals
 
+<!--
+Numbered so they can be cited. G-numbers are referenced from commit messages
+and from §20, so do not renumber them once the build has started.
+-->
+
 | # | Goal | Rationale |
 |---|---|---|
 | G1 | | |
@@ -98,12 +103,22 @@ metric that cannot be failed is decoration.
 
 ### 3.2 Non-Goals
 
+<!--
+The right-hand column is the load-bearing one. A non-goal with no stated reason
+gets overturned by the first person who wants the feature -- including the agent.
+-->
+
 | # | Non-goal | Why we are refusing this |
 |---|---|---|
 | NG1 | | |
 | NG2 | | |
 
 ### 3.3 Success Metrics
+
+<!--
+Every row needs a number AND a measurement method. If you cannot say how it is
+measured, it is not a metric, and the build cannot tell whether it hit it.
+-->
 
 | # | Metric | Target (with a number) | How it is measured |
 |---|---|---|---|
@@ -128,6 +143,12 @@ Two to four. More than four and none of them constrains anything.
 
 ### 4.1 [Persona name]
 
+<!--
+End with a "Therefore: ..." line. That line is the design implication, and it is
+the only part of a persona a build decision can actually be checked against.
+Duplicate this block per persona -- two to four in total, no more.
+-->
+
 - **Who:**
 - **Context of use:**
 - **What they are trying to do:**
@@ -135,6 +156,11 @@ Two to four. More than four and none of them constrains anything.
 - **Therefore:** [the design implication]
 
 ### 4.2 [Persona name]
+
+<!--
+Same shape as 4.1. If two personas produce the same "Therefore:" line, they are
+one persona and you should merge them.
+-->
 
 - **Who:**
 - **Context of use:**
@@ -330,13 +356,38 @@ stops the drift.
 
 ### 14.1 Platforms
 
+<!--
+Name what you support and what you explicitly do not. "Web first" is only a
+decision if it also says what happens to mobile.
+-->
+
 ### 14.2 Navigation and Key Screens
+
+<!--
+Enough structure that the agent can scaffold an information architecture rather
+than invent one. Screen names here become route names in the build.
+-->
 
 ### 14.3 Design Tokens
 
+<!--
+Colour, type scale, spacing, radius. Fixing them here is what stops every screen
+from drifting into its own dialect.
+-->
+
 ### 14.4 Onboarding
 
+<!--
+The first-run path, explicitly. Unspecified, this is the section that gets
+skipped -- and it is the one part of the product that every single user sees.
+-->
+
 ### 14.5 Accessibility
+
+<!--
+Name the standard and the level. "Accessible" is not testable; "WCAG 2.2 AA,
+keyboard-complete, tested with a screen reader" is.
+-->
 
 ---
 
@@ -358,15 +409,35 @@ see reference/feasibility-spikes.md.
 
 ### 15.1 Stack
 
+<!--
+Exact versions wherever the version matters. A range means the agent chooses --
+and it may choose differently after a restart, which is how a lockfile war starts.
+-->
+
 | Layer | Choice | Reason |
 |---|---|---|
 | | | |
 
 ### 15.2 Where Logic Runs
 
+<!--
+Client, server, edge, or background job -- per capability, not in general.
+Ambiguity here produces the wrong architecture silently and expensively.
+-->
+
 ### 15.3 Data Model
 
+<!--
+Core entities, their relationships, and the fields that carry meaning. Enough to
+generate a first migration from without guessing.
+-->
+
 ### 15.4 Performance Budgets
+
+<!--
+Numbers, each with the point at which it is measured. A budget with no
+measurement point is a hope, and it will be reported as met.
+-->
 
 | Operation | Budget | Measured under what load |
 |---|---|---|

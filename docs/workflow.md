@@ -3,8 +3,8 @@
 
 | Field | Value |
 |---|---|
-| Version | 1.0 |
-| Date | 29 August 2026 |
+| Version | 1.1 |
+| Date | 30 August 2026 |
 | Purpose | The repeatable process for taking an app from a sentence in your head to an armed overnight Claude Code run, without the agent guessing at anything that mattered |
 
 ---
@@ -233,13 +233,15 @@ cross-reference PRD section numbers throughout.
 
 Custom slash commands live in `~/.claude/commands/`. Three matter for this workflow.
 
-### 2.1 `/goal`
+### 2.1 `/goal` — proposed, not built
 
-*In this repo: not shipped — see [`commands/README.md`](../commands/README.md) for why, and for the workaround.*
+*In this repo: correctly absent, and absent for this reason. [`commands/README.md`](../commands/README.md) records the halt that caught it during the repo build; [`templates/brief.md.template`](../templates/brief.md.template) carries the `GOAL` heading the workaround below uses.*
 
-A single sentence defining what the run is *for*. Not a task list — the brief holds tasks. This is the standard the agent measures candidate work against when it needs to decide what to do next.
+**This command does not exist.** An earlier draft of this document described it as though it did, and that error propagated into a repository build before it was caught. The section is retained because the need it addresses is real, but it is a specification for a command worth writing, not documentation of one you have.
 
-It matters most under `/nightmax`, where running out of assigned work is not a finish condition and the agent must select its own next task. Without a goal, "most valuable task" is undefined and the agent optimises for whatever is nearest.
+**The gap it fills.** Under `/nightmax`, running out of assigned work is not a finish condition — the agent selects its own next task. "Most valuable task" is undefined without a standard to measure against, so the agent optimises for whatever is nearest, which is usually whatever is most visible. A goal is that standard.
+
+**Proposed behaviour.** The argument is a single falsifiable sentence stating what the run is for. Not a task list — the brief holds tasks. Under `/nightmax` it governs self-selected work: pick what most advances the goal, and if nothing does, record that in `brief.md` rather than inventing work. Under `/nightmin` it bounds the brief: work outside the goal is out of scope even if it looks useful.
 
 ```
 /goal Get the engine through Stage 3 with the fidelity suite
@@ -247,6 +249,10 @@ green, and do not begin any client work.
 ```
 
 A good goal is falsifiable and bounded. "Make progress on the app" is neither.
+
+**Until it exists**, put the same sentence at the top of `brief.md` under a `GOAL` heading. The template in this workflow already carries that section, so the function is available even though the command is not.
+
+> **On how this error happened.** The command appeared in a hand-written outline of the workflow, was written up as though confirmed, and the inference was flagged once and then built upon for several subsequent artifacts. The correct move at the point of noticing an inference is to check it, not to specify it. Recorded here because a methodology document that fabricates one of its own components is exactly the failure the method is supposed to prevent.
 
 ### 2.2 `/nightmin`
 
@@ -292,7 +298,7 @@ Two layers. **Either alone is insufficient**, which is worth internalising befor
 | Relaunch trigger | Session transcript idle 20+ minutes |
 | Heartbeat | Transcript `mtime` — chosen because it updates *mid-task*, not only at task boundaries |
 | Relaunch command | `claude --continue -p` |
-| Concurrency | Relaunches are synchronous, so they cannot pile up |
+| Concurrency | Relaunches are synchronous, so the watchdog cannot stack *its own* relaunches. **This says nothing about colliding with a live session** — see the failure modes below. |
 | Kill switch | `~/.claude/night/STOP` |
 | Runaway guard | `-MaxHours`, default 18 |
 
@@ -304,7 +310,35 @@ Two layers. **Either alone is insufficient**, which is worth internalising befor
 | `night.log` | Watchdog activity |
 | `report.md` | Run output |
 
-**Pre-flight check:** confirm the directory holds more than just the watchdog script before arming. A run with no brief is a run that cannot survive its first restart.
+### 2.6 Two observed failure modes
+
+*In this repo: both are fixed in [`scripts/night-watchdog.ps1`](../scripts/night-watchdog.ps1). The log excerpts and the process evidence are in [`docs/postmortems/2026-08-30-agentic-build-workflow.md`](postmortems/2026-08-30-agentic-build-workflow.md) §4.3.*
+
+Both were found in a live run, and both concern the same root cause: **the watchdog cannot distinguish "no heartbeat found" from "heartbeat is old"**, and the two require opposite responses.
+
+**Failure A — the loud one: instant relaunch against a working session.**
+
+If `-Cwd` resolves to a slug with no transcript directory, no heartbeat exists to check. With `$stale` defaulting to `$true` and only cleared when a transcript is found, the absence of a heartbeat reads as a stall. The watchdog relaunches in the same second it starts, colliding with a session that is working normally.
+
+This is the correction to the concurrency claim above. Synchronous relaunching prevents the watchdog stacking against itself; it does nothing to prevent a relaunch landing on top of a live session. The original wording was accurate about the mechanism and misleading about the outcome, which is a harder class of error to catch than a wrong statement.
+
+**Failure B — the quiet one, and the more dangerous: pointing the watchdog somewhere warm.**
+
+The obvious repair for Failure A is to re-arm against a directory whose slug does resolve. If that directory is kept warm by *unrelated* sessions, its heartbeat never goes stale, so the watchdog never fires — and the log stays clean because nothing happened. The run has no crash recovery, and every visible signal says it is protected.
+
+**A loud failure was traded for a silent one.** This is the worse outcome, and it is the one you will not notice.
+
+**The fix, in two parts:**
+
+1. **Fail closed.** Unknown is not stalled. If no transcript is found, do not relaunch — an absent heartbeat means the watchdog is watching the wrong place, and relaunching is the one response guaranteed to make that worse.
+2. **Log an arm-time heartbeat line.** Record, at startup, which transcript the watchdog resolved and whether it found one. Without this there is no downstream signal that distinguishes a watchdog doing its job from one silently watching nothing — which is precisely what makes Failure B invisible.
+
+**Pre-flight check, revised:**
+
+- Confirm `~/.claude/night/` holds more than the watchdog script. A run with no brief cannot survive its first restart.
+- Confirm `-Cwd` resolves to the project's own transcript slug, not a parent directory and not one shared with other sessions.
+- **Read the arm-time log line and confirm a transcript was found.** A clean log is not evidence of a working watchdog.
+- Confirm the running PID is watching the directory you think it is. A watchdog re-armed mid-run to fix one problem may be silently broken in the other direction.
 
 ---
 
@@ -446,11 +480,30 @@ Run before arming any night command.
 - [ ] Pipeline doc written, with a testable DoD per stage and explicit stop conditions
 - [ ] Both files in the repo root
 - [ ] `CLAUDE.md` written
-- [ ] `/goal` is one falsifiable sentence
+- [ ] `/goal` sentence written at the top of `brief.md` under `GOAL` (the command does not exist — see §2.1)
 - [ ] Night mode chosen — `/nightmin` for finite work, `/nightmax` for open-ended
 - [ ] `~/.claude/night/brief.md` populated (**not just the watchdog script**)
 - [ ] Watchdog launched detached; `-MaxHours` set appropriately
+- [ ] **`-Cwd` resolves to this project's own transcript slug** — not a parent directory, not one shared with other sessions
+- [ ] **Arm-time log line read, and a transcript confirmed found.** A clean log is not evidence of a working watchdog (§2.6, Failure B)
+- [ ] **Running PID confirmed to be watching the directory you think it is**
 - [ ] `STOP` file path known and reachable
 - [ ] Toolchain verified present, or Stage 0 instructed to install it
 - [ ] Clarifying-question round completed and every question answered
 - [ ] You have actually said go
+
+---
+
+## Changelog
+
+### v1.1 — 30 August 2026
+
+Both changes originate from the first run of this method against itself: building the workflow repository. Neither was found by review; both were found by execution.
+
+**§2.1 — `/goal` reclassified from documented to proposed.** The command does not exist. It appeared in a hand-written outline, was written up as though confirmed, and the inference was flagged once and then built upon across several subsequent artifacts — including a repository specification that instructed an agent to copy a file that was never there. The section now specifies a command worth building and gives the `brief.md` workaround available today. A methodology document that fabricates one of its own components is the exact failure this method exists to prevent, which is why the error is recorded rather than quietly removed.
+
+**§2.5 — concurrency claim corrected; §2.6 added.** "Relaunches are synchronous, so they cannot pile up" was true of the watchdog stacking against itself and silent about the real failure: a relaunch colliding with a session that is working normally. Two failure modes observed in a live run are now documented, along with the fail-closed fix and an expanded pre-flight check.
+
+The second of those, Failure B, is the one worth re-reading. A watchdog pointed at a directory kept warm by unrelated sessions never fires, and its log stays clean because nothing happens. Every visible signal reports health while the run has no crash recovery at all. The obvious repair for the loud failure produces the silent one, which is why the pre-flight now requires confirming the resolved transcript rather than reading the log.
+
+**What this version still does not establish.** The run that produced these corrections tested the pre-build documents and very little else. No watchdog under real conditions, no brief, no stage gate, no goal. A mid-run context compaction was survived on the harness's own session summary rather than on `brief.md` — so the method's central claim, that a restarted session recovers from the brief, remains untested. Do not read this document's confidence about restart survival as evidence for it.

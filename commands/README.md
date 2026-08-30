@@ -6,28 +6,30 @@ Custom slash commands live in `~/.claude/commands/`. Three matter for this workf
 |---|---|---|
 | [`nightmin.md`](nightmin.md) | `/nightmin` | Everything in the brief is done or genuinely blocked |
 | [`nightmax.md`](nightmax.md) | `/nightmax` | Only when you say `GM` or `stop` |
-| *(not shipped)* | `/goal` | — see below |
+| *(does not exist)* | `/goal` | — see below |
 
 Install them with [`scripts/install.ps1`](../scripts/install.ps1) or [`scripts/install.sh`](../scripts/install.sh). Both are idempotent and neither will overwrite an existing file without asking.
 
 ---
 
-## `/goal` is not in this repo
+## `/goal` is not a command
 
-**The source machine had no `~/.claude/commands/goal.md`, so there was nothing to extract, and the build rule is extract or halt — never invent a command file.** Writing a plausible one would have produced a file that looks authoritative and matches nothing.
+**It never was.** The source machine had no `~/.claude/commands/goal.md`, so there was nothing to extract, and the build rule is extract or halt — never invent a command file. Writing a plausible one would have produced a file that looks authoritative and matches nothing.
 
-What `/goal` is, from the workflow document ([`docs/workflow.md`](../docs/workflow.md) §2.1): a single sentence defining what the run is *for*. Not a task list — the brief holds tasks. It is the standard the agent measures candidate work against when it has to decide what to do next.
+That halt is what settled the question. The workflow document had described `/goal` alongside two commands that do exist, in the same register, with no marker separating them; the absence was only visible to something that went looking for the file. Version 1.1 of the source document reclassifies it — [`docs/workflow.md`](../docs/workflow.md) §2.1 is now headed **"`/goal` — proposed, not built"** and carries the workaround below. So this is not a gap in the extraction. It is the extraction working.
+
+What `/goal` was meant to be: a single sentence defining what the run is *for*. Not a task list — the brief holds tasks. It is the standard the agent measures candidate work against when it has to decide what to do next.
 
 It matters most under `/nightmax`, where running out of assigned work is not a finish condition and the agent must select its own next task. Without a goal, "most valuable task" is undefined and the agent optimises for whatever is nearest.
 
+**The sentence is still mandatory; only the typing shortcut is missing.** Put it at the top of `~/.claude/night/brief.md` under `## GOAL` (the [brief template](../templates/brief.md.template) has the section) and state it in the arming message. That is strictly better than a command anyway: a command sets it in one session’s context, and a night run outlives its sessions — the brief is what a restarted session re-reads.
+
 ```
-/goal Get the engine through Stage 3 with the fidelity suite
+GOAL: Get the engine through Stage 3 with the fidelity suite
 green, and do not begin any client work.
 ```
 
 A good goal is falsifiable and bounded. "Make progress on the app" is neither.
-
-**In the meantime**, the goal sentence is not optional — it is a pre-flight item. Put it at the top of `~/.claude/night/brief.md` under `## GOAL` (the [brief template](../templates/brief.md.template) has the section) and state it in the arming message. The command file is a convenience for typing it; the sentence is the thing that does the work.
 
 ---
 

@@ -80,7 +80,7 @@ Kill switch: create `~/.claude/night/STOP`.
 
 Nothing here is Claude-specific in principle — the documents are the method, and the commands are one implementation of unattended execution.
 
-**Note:** `/goal` is referenced throughout but ships as documentation only, not a command file. [`commands/README.md`](commands/README.md) explains why and gives the workaround.
+**Note:** `/goal` is *not* a command — it was proposed and never built. Write the goal sentence into `brief.md` under `GOAL` instead; [`docs/workflow.md`](docs/workflow.md) §2.1 and [`commands/README.md`](commands/README.md) cover why that is the better home for it.
 
 ---
 

@@ -132,7 +132,9 @@ They are kept as two rows rather than one because the preventing instructions di
 
 ### 4.2 Changes to the templates and prompts
 
-**None.** Neither was exercised: this run was pointed at a repository spec, not a PRD and a pipeline document. Recording "no changes" without that caveat would imply they were tested and held. They were not tested.
+**Prompts: none.** Neither the prompts nor the PRD and pipeline templates were exercised — this run was pointed at a repository spec, not at a product. Recording "no changes" without that caveat would imply they were tested and held. They were not tested.
+
+**`preflight-checklist.md`: three items added**, re-spliced from the source document’s appendix when it revised to v1.1 (§4.4). All three are about the watchdog’s `-Cwd`, and the middle one is the item that catches the silent failure: *read the arm-time log line and confirm a transcript was found.* A watchdog watching nothing produces a clean log, so the checklist now says in as many words that **a clean log is not evidence**.
 
 ### 4.3 Changes to the watchdog — commit `6a17a72`
 
@@ -156,7 +158,7 @@ The relaunch put a second agent on the same repository and the same brief. They 
 
 Two things this falsifies:
 
-**The concurrency claim was wrong.** Both `commands/README.md` and `docs/workflow.md` stated: *relaunches are synchronous, so they cannot pile up*. True, and irrelevant. Synchronous relaunch stops the watchdog stacking its **own** relaunches. It says nothing about a relaunch colliding with the still-alive original, which is a different writer entirely. Corrected in `commands/README.md`. `docs/workflow.md` is a verbatim extract and still carries the original wording — **flagged for v1.1 of the source document**, not silently edited here.
+**The concurrency claim was wrong.** Both `commands/README.md` and `docs/workflow.md` stated: *relaunches are synchronous, so they cannot pile up*. True, and irrelevant. Synchronous relaunch stops the watchdog stacking its **own** relaunches. It says nothing about a relaunch colliding with the still-alive original, which is a different writer entirely. Corrected in `commands/README.md`. `docs/workflow.md` is a verbatim extract, so it was **flagged for the source document rather than silently edited here** — and v1.1 has since landed with the correction (§4.4).
 
 **The repair applied at the time made it worse.** The line at 11:30:53 is that repair: kill the watchdog, restart it with `-Cwd` pointed at the home directory. The restarts stopped. They stopped because that slug is kept permanently warm by unrelated sessions, so the heartbeat never goes stale and the watchdog **never fires at all**. That run continued for hours with no crash recovery and a clean-looking log. At the time of writing, that process is still alive, still guarding nothing.
 
@@ -173,6 +175,21 @@ The change:
 - **Report the heartbeat at arm time** — which file, how many minutes old. Nothing inside the script can tell whether that file belongs to the run you armed, so this line is the only moment the silent failure is visible. Read it after arming.
 
 Verified by extracting the patched decision block out of the shipped script and running it against four cases: directory missing, directory empty, transcript fresh, transcript ninety minutes old. Only the last relaunches.
+
+### 4.4 Changes to the source document — v1.1
+
+Two of the findings above went back to the document this repo extracts from, and it revised: **PRE-BUILD-WORKFLOW v1.1, 30 August 2026.** Eight changed passages, all traceable to this run:
+
+| Where | What changed |
+|---|---|
+| §2.1 | Retitled **"`/goal` — proposed, not built"**, with the `brief.md` workaround promoted from a footnote to the instruction, and a note on how the error survived unnoticed |
+| §2.5 | The concurrency row rewritten — synchronous relaunch no longer offered as protection against duplicate writers |
+| §2.6 | **New section**, "Two observed failure modes", holding the asymmetric `-Cwd` table above |
+| Appendix | Three checklist items added, and the `/goal` item reworded |
+
+`docs/workflow.md` was rebuilt from v1.1 and re-verified the same way as the first extraction: strip the repo's cross-reference insertions back out, and the remainder is byte-identical to the source. Seventeen insertions now, up from sixteen.
+
+**This is the loop the method is supposed to run, and it closed for the first time here.** A build hits an ambiguity → the ambiguity becomes a postmortem heading → the heading becomes a catalogue row and a checklist item → the source document changes. Worth being exact about what that does and does not show: it is evidence that the *feedback path* works. Whether the corrected instructions prevent the failures they describe is a claim only a run under v1.1 can test, and no such run has happened.
 
 ---
 

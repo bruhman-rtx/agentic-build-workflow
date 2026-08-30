@@ -18,7 +18,7 @@ Seven fillable files. Every heading carries its guidance in an HTML comment — 
 | [`PROGRESS.md.template`](PROGRESS.md.template) | Session-by-session handoff. | Before the first session; appended at every session end | Target repo root, as `PROGRESS.md` |
 | [`BUGS.md.template`](BUGS.md.template) | Every non-trivial bug, so patterns become visible across sessions. | Before the first session; appended as bugs occur | Target repo root, as `BUGS.md` |
 | [`brief.md.template`](brief.md.template) | The night-run checklist. **The memory across crashes.** | Immediately before arming a night run | `~/.claude/night/brief.md` — **not** the repo |
-| [`preflight-checklist.md`](preflight-checklist.md) | Twelve items to clear before arming. | Read, not copied | Stays here |
+| [`preflight-checklist.md`](preflight-checklist.md) | Fifteen items to clear before arming. | Read, not copied | Stays here |
 
 ---
 

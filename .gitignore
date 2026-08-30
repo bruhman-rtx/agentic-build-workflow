@@ -1,0 +1,19 @@
+# OS cruft
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*~
+
+# Never commit run state — may contain project specifics
+night/
+*.log
+report.md
+brief.md
+
+# Exception: the brief TEMPLATE is part of this repo; a real brief.md is not.
+!templates/brief.md.template

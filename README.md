@@ -22,6 +22,7 @@ This repo is the machinery for killing them: the prompts that extract the decisi
 | [`commands/`](commands/) | The `/nightmin` and `/nightmax` slash commands, plus the shared rules and the two-layer restart-survival explanation |
 | [`scripts/`](scripts/) | The watchdog that survives crashes and usage limits, and idempotent installers for both shells |
 | [`reference/`](reference/) | The [full AAA product pipeline](reference/aaa-pipeline.md) you compress against, and a [guide to feasibility spikes](reference/feasibility-spikes.md) — finding the one bet that kills your thesis |
+| [`examples/`](examples/) | **A worked example.** A real, complete [PRD](examples/bourse/PRD.md) and [pipeline document](examples/bourse/PIPELINE.md) from a project built with this method — verbatim, unedited, to read beside the empty templates |
 
 ---
 
@@ -39,9 +40,9 @@ cd agentic-build-workflow
 
 Installs the night commands to `~/.claude/commands/` and the watchdog to `~/.claude/night/`. Idempotent, and it will not overwrite an existing file without asking.
 
-**2. Write the PRD.** In Claude Desktop, paste [`prompts/01-prd-interrogation.md`](prompts/01-prd-interrogation.md). Answer the interrogation honestly — especially the parts you would rather leave open. Fill [`templates/PRD-template.md`](templates/PRD-template.md) with what comes out. Save as `PRD.md` in your project root.
+**2. Write the PRD.** In Claude Desktop, paste [`prompts/01-prd-interrogation.md`](prompts/01-prd-interrogation.md). Answer the interrogation honestly — especially the parts you would rather leave open. Fill [`templates/PRD-template.md`](templates/PRD-template.md) with what comes out. Save as `PRD.md` in your project root. If you are unsure how full an answer should be, [`examples/bourse/PRD.md`](examples/bourse/PRD.md) is a real filled one.
 
-**3. Adapt the pipeline.** In the *same conversation*, paste [`prompts/02-pipeline-adaptation.md`](prompts/02-pipeline-adaptation.md) along with [`reference/aaa-pipeline.md`](reference/aaa-pipeline.md). The model compresses the full pipeline against your constraints. Fill [`templates/PIPELINE-template.md`](templates/PIPELINE-template.md) and save as `PIPELINE.md`. **Appendix A is the part the agent executes against** — spend your time there.
+**3. Adapt the pipeline.** In the *same conversation*, paste [`prompts/02-pipeline-adaptation.md`](prompts/02-pipeline-adaptation.md) along with [`reference/aaa-pipeline.md`](reference/aaa-pipeline.md). The model compresses the full pipeline against your constraints. Fill [`templates/PIPELINE-template.md`](templates/PIPELINE-template.md) and save as `PIPELINE.md`. **Appendix A is the part the agent executes against** — spend your time there. To see what the compression actually produces, diff [`reference/aaa-pipeline.md`](reference/aaa-pipeline.md) against [`examples/bourse/PIPELINE.md`](examples/bourse/PIPELINE.md) — same skeleton, one project's specifics.
 
 **4. Generate the instruction block.** Still the same conversation: [`prompts/03`](prompts/03-instruction-block.md), then [`prompts/04`](prompts/04-verification-and-bugfixing.md), then [`prompts/05`](prompts/05-tool-inventory.md). These are *meta-prompts* — they produce the blocks you assemble, they are not themselves the final prompt. [`prompts/README.md`](prompts/README.md) shows the assembly order.
 

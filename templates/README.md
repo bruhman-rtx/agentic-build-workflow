@@ -2,7 +2,9 @@
 
 Seven fillable files. Every heading carries its guidance in an HTML comment — what the section must answer, and what goes wrong if it is thin.
 
-**The comments are the documentation.** There is no worked example in this repo, so they carry the full explanatory load. Leave them in while the agent is building; they cost nothing and they tell a future session what each section was supposed to contain. Strip them before sharing the document with a human if you like.
+**The comments are the documentation.** Leave them in while the agent is building; they cost nothing and they tell a future session what each section was supposed to contain. Strip them before sharing the document with a human if you like.
+
+**For what a filled version looks like, see [`examples/bourse/`](../examples/bourse/)** — a real PRD and pipeline document from a project built with this method, verbatim and unedited. The templates tell you what a section is for; the example shows you an answer that works at full size. Read them side by side.
 
 ---
 

@@ -1,0 +1,24 @@
+<!--
+Copy to the target repo root as CLAUDE.md, fill the [placeholders], and DELETE
+THIS COMMENT. Claude Code reads CLAUDE.md automatically at every session start.
+
+The prompt you carefully assembled is gone the moment context resets; this file
+is not. Without it, session two starts blind — on a multi-stage build that is
+the difference between a coherent codebase and a patchwork.
+
+KEEP THE BODY UNDER TWENTY LINES. It is read at every session start, and a long
+CLAUDE.md is a skimmed CLAUDE.md. Everything that does not fit belongs in
+PIPELINE.md Appendix A, which this file points at.
+-->
+
+# [PROJECT NAME]
+
+**The two documents.** `PRD.md` is the specification of what to build; the decision log (§20) is the lookup table when you are uncertain. `PIPELINE.md` is the process and the build order; Appendix A is the operative section.
+
+**Where to start.** [Appendix A, Stage 0 — e.g. "toolchain setup: install the test runner and confirm `npm test` exits zero"]. Read the PRD fully first, then the pipeline doc.
+
+**The stage gate.** Do not advance to the next stage until the current stage's definition of done is *demonstrably* met — not asserted, demonstrated. One stage per session. Stage 1 is blocking: if its pass criteria fail after two remediation attempts, stop and write the failure to `report.md`.
+
+**Standing rules.** Follow Appendix A §A.3 on every commit. Never weaken, skip, or delete a test to make a suite pass. When the two documents conflict, the PRD's decision log wins on *what*, the pipeline wins on *when*. Anything neither document settles and PRD §18 does not list: record it in `brief.md` under `OPEN`, take the most conservative option, keep going.
+
+**Verification.** Nothing merges without green. Run the full check before every commit: [your actual commands]. On failure, stop new work, reproduce in isolation, fix the root cause, re-run everything. Log non-trivial bugs in `BUGS.md`; update `PROGRESS.md` at every session end.

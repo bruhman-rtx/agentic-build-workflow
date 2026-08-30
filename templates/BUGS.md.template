@@ -1,0 +1,47 @@
+<!--
+Copy to the target repo root as BUGS.md.
+
+Log EVERY non-trivial bug here with reproduction, root cause, and fix, so
+patterns become visible across sessions. The value is not the individual row —
+it is noticing that four rows across four sessions are the same bug wearing
+different clothes.
+
+A bug is "non-trivial" if it took more than a few minutes to understand, or if
+the root cause was somewhere other than where the symptom appeared. Typos are
+not bugs.
+
+REQUIRED READING FOR THE AGENT: when a test fails, do not proceed to new work
+and do not weaken, skip, or delete the test. Reproduce the failure in
+isolation, write a minimal failing case if one does not exist, fix the root
+cause, then re-run the full suite to confirm nothing else regressed. The row
+here gets written after that, not instead of it.
+
+Treat any failure of a foundational-fidelity test as P0: either the change is
+wrong, or the spec needs a human decision — which you record and defer rather
+than resolve.
+-->
+
+# Bugs
+
+| Date | Symptom | Reproduction | Root cause | Fix | Commit |
+|---|---|---|---|---|---|
+| YYYY-MM-DD | | | | | |
+
+<!--
+COLUMN GUIDANCE
+
+Symptom — what was observed, not what you assumed was wrong. "Fidelity suite
+fails on case 12" rather than "off-by-one in the sampler".
+
+Reproduction — the minimal failing case. A command, a fixture, an input. If
+you cannot write this column, you have not reproduced it in isolation yet, and
+the fix is a guess.
+
+Root cause — why it happened, one level deeper than the line you changed. "The
+cache key omitted locale" rather than "wrong value returned".
+
+Fix — what changed, and whether a regression test now covers it. If no test
+covers it, say so explicitly: an uncovered fix is a bug scheduled to return.
+
+Commit — the SHA. Without it this table cannot be audited against the diff.
+-->

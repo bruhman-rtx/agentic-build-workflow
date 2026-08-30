@@ -1,0 +1,121 @@
+<!--
+NIGHT-RUN BRIEF — copy to ~/.claude/night/brief.md before arming a night mode.
+
+*** THIS FILE IS THE MEMORY ACROSS CRASHES. ***
+
+When the watchdog relaunches Claude after a crash, an error, or a usage-limit
+lockout, the restarted session has NO memory of the conversation that armed the
+run. It re-reads this file and nothing else. If it is thin, the restart resumes
+blind.
+
+WRITE IT SO IT IS SELF-SUFFICIENT. Assume the reader knows nothing: not the
+project, not the goal, not what was already tried. Name the working directory,
+name the documents, spell out the tasks. Redundancy costs nothing here and
+ambiguity costs the night.
+
+The agent APPENDS to this file as it works. Do not treat it as static — DONE,
+BLOCKED, and OPEN grow through the run, and that growth is what a restarted
+session reads to know where it got to.
+
+PRE-FLIGHT: confirm ~/.claude/night/ holds more than just the watchdog script
+before arming. A run with no brief is a run that cannot survive its first
+restart.
+
+Delete this comment block when you fill the file in.
+-->
+
+# Night Brief
+
+| Field | Value |
+|---|---|
+| Mode | `/nightmin` \| `/nightmax` |
+| Date armed | YYYY-MM-DD |
+| Working directory | |
+| Repo / branch | |
+| Documents | `PRD.md`, `PIPELINE.md`, `CLAUDE.md` |
+| Stage | Appendix A, Stage [n] |
+
+---
+
+## GOAL
+
+<!--
+One falsifiable, bounded sentence — the same sentence given to /goal.
+
+This is the standard the agent measures candidate work against when it has to
+decide what to do next. It matters most under /nightmax, where running out of
+assigned work is not a finish condition: without a goal, "most valuable task"
+is undefined and the agent optimises for whatever is nearest.
+
+  Good: "Get the engine through Stage 3 with the fidelity suite green, and do
+        not begin any client work."
+  Bad:  "Make progress on the app."
+-->
+
+---
+
+## TASKS
+
+<!--
+An explicit numbered checklist of every task tonight. Specific and concrete —
+a restarted session may have nothing but this file to go on.
+
+Each item should name what "done" looks like. "Fix the importer" is not a task;
+"fix the importer so `npm run test:import` exits zero" is.
+
+Under /nightmax, add a `## Self-directed queue` section below this one for work
+the agent picks itself. It appends chosen work there BEFORE starting it, so the
+record shows what it chose and why.
+-->
+
+- [ ] 1.
+- [ ] 2.
+- [ ] 3.
+
+---
+
+## DONE
+
+<!--
+Appended by the agent as each item completes. One line each: what was done,
+which task it closes, and the commit SHA.
+
+This is the first thing a restarted session reads. Without it, a restart
+re-does finished work — or worse, half-re-does it.
+-->
+
+---
+
+## BLOCKED
+
+<!--
+Anything that cannot proceed, with WHY. A blocker is not "this was hard" — it
+is a dependency that is genuinely unavailable: a missing credential, a service
+that will not start, a decision only a human can make.
+
+Under /nightmin, everything being done or blocked is the finish condition, so
+this section is load-bearing: a task parked here ends the night, and a task
+parked here wrongly ends it early.
+-->
+
+---
+
+## OPEN
+
+<!--
+*** THE LOG-AND-PROCEED BUCKET. ***
+
+The agent cannot ask a question during a night run. So when it finds something
+genuinely ambiguous that neither the PRD nor the pipeline doc covers, the
+protocol is: RECORD IT HERE, PROCEED WITH THE MOST CONSERVATIVE OPTION, KEEP
+GOING.
+
+Each entry needs three things:
+  - what was ambiguous
+  - what was chosen instead
+  - what would change if the choice was wrong
+
+This section is the highest-value thing you read in the morning. Every entry is
+a place the two documents failed, and it is the direct input to the next
+revision of the PRD — most entries should end up as a row in PRD §18 or §20.
+-->

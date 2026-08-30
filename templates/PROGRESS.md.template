@@ -1,0 +1,42 @@
+<!--
+Copy to the target repo root as PROGRESS.md.
+
+Updated at EVERY session end. This is the handoff between sessions and the
+thing you read in the morning to know where you are without reading a diff.
+
+Read this and report.md BEFORE the diff. They tell you what the agent BELIEVES
+it did; the diff tells you what it did. Where the two diverge is exactly where
+the documents were ambiguous, and that divergence is the input to the next
+revision of the PRD.
+
+Append, newest last. Do not rewrite history — a session that overstated its
+progress is evidence, and editing it away destroys the only record of the
+method failing.
+-->
+
+# Progress
+
+| Session date | Stage | What shipped | DoD criteria met | Next |
+|---|---|---|---|---|
+| YYYY-MM-DD | | | | |
+
+<!--
+COLUMN GUIDANCE
+
+Session date — the date the session ran. One row per session, not per stage.
+
+Stage — the Appendix A stage number and name. If a session crossed a stage
+boundary, say so explicitly: that usually means the gate was skipped, and it
+is worth catching here rather than three stages later.
+
+What shipped — concrete artifacts, not activity. "Matching engine + 41 unit
+tests" rather than "worked on matching". Link commits where useful.
+
+DoD criteria met — quote the stage's testable definition of done from Appendix
+A and say which parts are green. PARTIAL IS A VALID ANSWER AND MUST BE SAID SO;
+a row claiming a gate is met when it is not is the single most expensive lie
+this file can carry, because the next session builds on it.
+
+Next — the first thing the next session should do, specific enough to act on
+without re-reading anything.
+-->

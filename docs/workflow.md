@@ -235,7 +235,7 @@ Custom slash commands live in `~/.claude/commands/`. Three matter for this workf
 
 ### 2.1 `/goal`
 
-*In this repo: [`commands/goal.md`](../commands/goal.md)*
+*In this repo: not shipped — see [`commands/README.md`](../commands/README.md) for why, and for the workaround.*
 
 A single sentence defining what the run is *for*. Not a task list — the brief holds tasks. This is the standard the agent measures candidate work against when it needs to decide what to do next.
 
